@@ -20,4 +20,4 @@ EXPOSE 7860
 ENV GRADIO_SERVER_NAME="0.0.0.0"
 
 # Run app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["python", "logviewer/app.py"]
