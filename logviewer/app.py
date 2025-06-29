@@ -215,7 +215,10 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#log_content textarea { font-family:
         outputs=gr.File(label="Download Filtered Log")
     )
 
-app = gr.mount_gradio_app(demo, path="/")
+from fastapi import FastAPI
+
+app = FastAPI()
+app = gr.mount_gradio_app(app, demo, path="/")
 
 if __name__ == "__main__":
     import uvicorn
