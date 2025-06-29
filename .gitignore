@@ -1,3 +1,4 @@
 __pycache__/
 logviewer/__pycache__/
 .env
+filtered_log.txt

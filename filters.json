@@ -1,0 +1,1 @@
+[{"type": "Exclude Text", "value": "#", "case_sensitive": true}, {"type": "Exclude Regex", "value": "^\\s*$", "case_sensitive": true}]
