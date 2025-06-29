@@ -1,7 +1,7 @@
-from gradio_client import Client
 import os
 import json
 import argparse
+import requests
 
 def run_log_processing(log_file_path: str, filter_file_path: str, output_file_path: str = None):
     """
@@ -13,28 +13,26 @@ def run_log_processing(log_file_path: str, filter_file_path: str, output_file_pa
         output_file_path (str, optional): Path to the output file. 
                                           Defaults to a generated name if not provided.
     """
-    # Assuming your Gradio app is running on localhost:7860
-    # You might need to change this URL if your app is hosted elsewhere.
-    client = Client("http://localhost:7860/")
+    base_url = "http://localhost:7860"
 
     print(f"Loading filters from: {filter_file_path}")
-    # Call the load_filters function in your Gradio app
-    # Gradio client handles file uploads by passing the file path directly.
-    loaded_filters = client.predict(
-        fn_name="/load_filters", 
-        inputs=[filter_file_path]
-    )
-    print(f"Loaded {len(loaded_filters)} filters.")
+    with open(filter_file_path, 'r') as f:
+        filters = json.load(f)
 
     print(f"Applying filters to log file: {log_file_path}")
-    # Call the apply_filters function in your Gradio app
-    filtered_log_content = client.predict(
-        fn_name="/apply_filters",
-        inputs=[log_file_path, loaded_filters]
-    )
+    with open(log_file_path, 'r') as f:
+        log_content = f.read()
+
+    response = requests.post(f"{base_url}/api/apply_filters/", json={
+        "data": [
+            {"path": log_file_path},
+            filters
+        ]
+    })
+    response.raise_for_status()
+    filtered_log_content = response.json()['data'][0]
     print("Filters applied.")
 
-    # Determine output file name if not provided
     if output_file_path is None:
         log_file_name = os.path.basename(log_file_path)
         filter_file_name = os.path.basename(filter_file_path)
@@ -44,7 +42,6 @@ def run_log_processing(log_file_path: str, filter_file_path: str, output_file_pa
         
         output_file_path = f"{log_base}_{filter_base}_filtered.txt"
 
-    # Save the result to the output file
     with open(output_file_path, "w") as f:
         f.write(filtered_log_content)
 

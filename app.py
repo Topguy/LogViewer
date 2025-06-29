@@ -215,10 +215,8 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#log_content textarea { font-family:
         outputs=gr.File(label="Download Filtered Log")
     )
 
-    # Expose functions as API endpoints for external clients
-    demo.api_open(fn=load_filters, api_name="load_filters")
-    demo.api_open(fn=apply_filters, api_name="apply_filters")
+app = gr.mount_gradio_app(demo, path="/")
 
 if __name__ == "__main__":
-    demo.launch()
-    demo.launch()
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)

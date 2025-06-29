@@ -54,8 +54,7 @@ This is the main application file that creates the user interface and handles al
     *   Clicking "Save Filtered Log" triggers `save_filtered_log`.
 
 *   **API Endpoints:**
-    *   `load_filters`: Exposed via `gr.API` to allow external clients to load filter sets.
-    *   `apply_filters`: Exposed via `gr.API` to allow external clients to apply filters to log content.
+    *   The Gradio application is mounted on a FastAPI app, which exposes all public functions as API endpoints. The endpoints are accessible at `http://<host>:<port>/api/<function_name>/`.
 
 ### 2.2. `filter_utils.py`
 
@@ -78,7 +77,7 @@ This is a command-line interface (CLI) application that interacts with the runni
 *   **Functionality:**
     *   Takes a log file path and a filter JSON file path as arguments.
     *   Optionally takes an output file path; otherwise, it generates one.
-    *   Uses `gradio_client` to call the `load_filters` and `apply_filters` API endpoints of the Gradio app.
+    *   Uses the `requests` library to send POST requests to the `/api/apply_filters/` endpoint of the Gradio app.
     *   Saves the filtered log content to the specified output file.
 
 ## 3. User Interaction Flow
