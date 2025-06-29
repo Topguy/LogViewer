@@ -51,6 +51,42 @@ To set up LogViewer on your local machine, follow these steps:
 
 ## Usage
 
+### Running with Docker Compose
+
+Docker Compose provides an easy way to set up and run the LogViewer application in a containerized environment.
+
+#### Prerequisites
+
+*   Docker and Docker Compose installed on your system.
+
+#### Steps
+
+1.  **Build and run the services:**
+    Navigate to the root directory of the cloned repository and run:
+    ```bash
+    docker compose up --build -d
+    ```
+    This command builds the Docker image (if not already built) and starts the LogViewer service in detached mode.
+
+2.  **Access the Web UI:**
+    Open your web browser and navigate to `http://localhost:7860`.
+
+3.  **Using the CLI with Docker Compose:**
+    If you are running the web interface via Docker Compose, the CLI tool (`cli_app.py`) needs to connect to the Dockerized service. You will need to modify the `Client` URL in `cli_app.py` to point to the Docker container's exposed port (which is `http://localhost:7860` by default).
+
+    Locate the line `client = Client("http://localhost:7860/")` in `cli_app.py` and ensure it points to the correct address where your Docker container is accessible.
+
+    Then, you can run the CLI as usual:
+    ```bash
+    python cli_app.py <log_file_path> <filter_file_path> [-o <output_file_path>]
+    ```
+
+4.  **Stopping the services:**
+    To stop the running Docker containers, use:
+    ```bash
+    docker compose down
+    ```
+
 ### Web Interface (Gradio App)
 
 To launch the interactive web interface:
