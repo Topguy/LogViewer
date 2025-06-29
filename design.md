@@ -25,6 +25,8 @@ This is the main application file that creates the user interface and handles al
     *   A section to display and manage active filters:
         *   A radio button group (`gr.Radio`) that lists the currently applied filters, showing their type, value, and case sensitivity.
         *   A "Remove Selected Filter" button (`gr.Button`).
+        *   "Move Up" button (`gr.Button`) to move the selected filter up in the list.
+        *   "Move Down" button (`gr.Button`) to move the selected filter down in the list.
     *   A "Save Filtered Log" button (`gr.Button`) to download the currently displayed filtered log content.
 
 *   **State Management:**
@@ -33,6 +35,8 @@ This is the main application file that creates the user interface and handles al
 *   **Core Logic:**
     *   **`add_filter()`:** Adds a new filter dictionary to the `filters_state` list.
     *   **`remove_filter()`:** Removes a filter from the `filters_state` list based on the user's selection.
+    *   **`move_filter_up()`:** Moves the selected filter up in the `filters_state` list.
+    *   **`move_filter_down()`:** Moves the selected filter down in the `filters_state` list.
     *   **`apply_filters()`:** This is the main processing function. It reads the uploaded file and applies the sequence of filters stored in `filters_state` by calling the `filter_lines` utility function for each filter.
     *   **`update_filter_list()`:** Generates a list of strings from the `filters_state` list to display it in the UI.
     *   **`save_filters()`:** Saves the current `filters_state` to a JSON file.
@@ -43,9 +47,15 @@ This is the main application file that creates the user interface and handles al
     *   Uploading a file triggers `apply_filters`.
     *   Clicking "Add Filter" triggers `add_filter`, then `update_filter_list`, and finally `apply_filters`.
     *   Clicking "Remove Selected Filter" triggers `remove_filter`, then `update_filter_list`, and finally `apply_filters`.
+    *   Clicking "Move Up" triggers `move_filter_up`, then `update_filter_list`, and finally `apply_filters`.
+    *   Clicking "Move Down" triggers `move_filter_down`, then `update_filter_list`, and finally `apply_filters`.
     *   Clicking "Save Filters" triggers `save_filters`.
     *   Uploading a file to "Load Filters" triggers `load_filters`, then `update_filter_list`, and finally `apply_filters`.
     *   Clicking "Save Filtered Log" triggers `save_filtered_log`.
+
+*   **API Endpoints:**
+    *   `load_filters`: Exposed via `gr.API` to allow external clients to load filter sets.
+    *   `apply_filters`: Exposed via `gr.API` to allow external clients to apply filters to log content.
 
 ### 2.2. `filter_utils.py`
 
@@ -61,6 +71,16 @@ This module provides utilities for parsing and filtering log lines based on time
 *   **`get_timestamp_range()`:** Extracts the earliest and latest timestamps from a list of log lines.
 *   **`filter_by_time_range()`:** Filters log lines to include only those within a specified time range, based on parsed timestamps.
 
+### 2.4. `cli_app.py`
+
+This is a command-line interface (CLI) application that interacts with the running `app.py` Gradio service via its API.
+
+*   **Functionality:**
+    *   Takes a log file path and a filter JSON file path as arguments.
+    *   Optionally takes an output file path; otherwise, it generates one.
+    *   Uses `gradio_client` to call the `load_filters` and `apply_filters` API endpoints of the Gradio app.
+    *   Saves the filtered log content to the specified output file.
+
 ## 3. User Interaction Flow
 
 1.  The user opens the application in their browser.
@@ -71,9 +91,9 @@ This module provides utilities for parsing and filtering log lines based on time
 6.  To remove a filter, the user selects it from the "Applied Filters" radio group.
 7.  The user then clicks the "Remove Selected Filter" button.
 8.  The filter is removed from the list, and the log view is updated to reflect the change.
-9.  The user can save the current set of filters by clicking the "Save Filters" button, which will prompt a file download.
-10. The user can load a previously saved set of filters by clicking the "Load Filters" button and selecting a JSON file.
-
-11. The user can save the currently displayed filtered log content by clicking the "Save Filtered Log" button, which will prompt a file download.
+9.  The user can reorder filters by selecting a filter and clicking "Move Up" or "Move Down" buttons.
+10. The user can save the current set of filters by clicking the "Save Filters" button, which will prompt a file download.
+11. The user can load a previously saved set of filters by clicking the "Load Filters" button and selecting a JSON file.
+12. The user can save the currently displayed filtered log content by clicking the "Save Filtered Log" button, which will prompt a file download.
 
 This design allows for a flexible and interactive way to analyze log files by building a chain of filters.

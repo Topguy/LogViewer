@@ -13,11 +13,37 @@ def remove_filter(filters, selected_filter):
         if len(parts) == 3:
             filter_type, filter_value, case_str = parts
             case_sensitive = case_str == "Case Sensitive: True"
-            for f in filters:
+            for i, f in enumerate(filters):
                 if f["type"] == filter_type and f["value"] == filter_value and f["case_sensitive"] == case_sensitive:
-                    filters.remove(f)
+                    filters.pop(i)
                     break
     return filters, None
+
+def move_filter_up(filters, selected_filter):
+    if selected_filter:
+        parts = selected_filter.split(" - ")
+        if len(parts) == 3:
+            filter_type, filter_value, case_str = parts
+            case_sensitive = case_str == "Case Sensitive: True"
+            for i, f in enumerate(filters):
+                if f["type"] == filter_type and f["value"] == filter_value and f["case_sensitive"] == case_sensitive:
+                    if i > 0:
+                        filters[i], filters[i-1] = filters[i-1], filters[i]
+                    break
+    return filters, selected_filter
+
+def move_filter_down(filters, selected_filter):
+    if selected_filter:
+        parts = selected_filter.split(" - ")
+        if len(parts) == 3:
+            filter_type, filter_value, case_str = parts
+            case_sensitive = case_str == "Case Sensitive: True"
+            for i, f in enumerate(filters):
+                if f["type"] == filter_type and f["value"] == filter_value and f["case_sensitive"] == case_sensitive:
+                    if i < len(filters) - 1:
+                        filters[i], filters[i+1] = filters[i+1], filters[i]
+                    break
+    return filters, selected_filter
 
 def apply_filters(file, filters):
     if file is not None:
@@ -67,7 +93,7 @@ def save_filtered_log(log_content):
         return "filtered_log.txt"
     return None
 
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+with gr.Blocks(theme=gr.themes.Soft(), css="#log_content textarea { font-family: monospace; }") as demo:
     filters_state = gr.State([])
 
     gr.Markdown("## Log File Viewer")
@@ -93,6 +119,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     with gr.Row():
         applied_filters_list = gr.Radio(label="Applied Filters", interactive=True)
         remove_filter_button = gr.Button("Remove Selected Filter")
+        move_up_button = gr.Button("Move Up")
+        move_down_button = gr.Button("Move Down")
 
     with gr.Row():
         save_filtered_log_button = gr.Button("Save Filtered Log")
@@ -115,6 +143,34 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
 
     remove_filter_button.click(
         remove_filter,
+        inputs=[filters_state, applied_filters_list],
+        outputs=[filters_state, applied_filters_list]
+    ).then(
+        update_filter_list,
+        inputs=filters_state,
+        outputs=applied_filters_list
+    ).then(
+        apply_filters,
+        inputs=[file_input, filters_state],
+        outputs=text_output
+    )
+
+    move_up_button.click(
+        move_filter_up,
+        inputs=[filters_state, applied_filters_list],
+        outputs=[filters_state, applied_filters_list]
+    ).then(
+        update_filter_list,
+        inputs=filters_state,
+        outputs=applied_filters_list
+    ).then(
+        apply_filters,
+        inputs=[file_input, filters_state],
+        outputs=text_output
+    )
+
+    move_down_button.click(
+        move_filter_down,
         inputs=[filters_state, applied_filters_list],
         outputs=[filters_state, applied_filters_list]
     ).then(
@@ -158,6 +214,10 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         inputs=text_output,
         outputs=gr.File(label="Download Filtered Log")
     )
+
+    # Expose functions as API endpoints for external clients
+    demo.api_open(fn=load_filters, api_name="load_filters")
+    demo.api_open(fn=apply_filters, api_name="apply_filters")
 
 if __name__ == "__main__":
     demo.launch()
