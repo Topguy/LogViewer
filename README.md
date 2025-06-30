@@ -5,6 +5,7 @@ sdk: gradio
 app_file: logviewer/app.py
 colorFrom: blue
 colorTo: green
+sdk_version: 5.35.0
 ---
 
 # LogViewer
