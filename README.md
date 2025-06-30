@@ -1,3 +1,12 @@
+---
+title: LogViewer
+license: mit
+sdk: gradio
+app_file: logviewer/app.py
+colorFrom: blue
+colorTo: green
+---
+
 # LogViewer
 
 LogViewer is a versatile tool designed for efficient viewing and filtering of log files. It offers both a user-friendly web interface built with Gradio and a powerful command-line interface (CLI) for automated processing.
