@@ -1,5 +1,6 @@
 import gradio as gr
 import json
+import os
 from filter_utils import filter_lines
 
 def add_filter(filters, filter_type, filter_value, case_sensitive):
@@ -218,7 +219,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#log_content textarea { font-family:
 from fastapi import FastAPI
 
 app = FastAPI()
-app = gr.mount_gradio_app(app, demo, path="/")
+app = gr.mount_gradio_app(app, demo, path="/", root_path=os.environ.get("GRADIO_ROOT_PATH", ""))
 
 if __name__ == "__main__":
     import uvicorn
