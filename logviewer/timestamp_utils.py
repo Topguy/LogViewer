@@ -4,26 +4,24 @@ import re
 def parse_timestamp(log_line: str) -> datetime.datetime | None:
     """
     Attempts to parse a timestamp from the beginning of a log line.
-    This is a placeholder and should be extended to handle various timestamp formats.
+    This function supports multiple timestamp formats.
     """
-    # Example: YYYY-MM-DD HH:MM:SS.milliseconds or YYYY-MM-DDTHH:MM:SS,SSS
-    # This regex is a starting point and might need to be adjusted for specific log formats.
+    # Format 1: YYYY-MM-DD HH:MM:SS.milliseconds or YYYY-MM-DDTHH:MM:SS,SSS
     match = re.match(r'^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}[.,]\d{3})', log_line)
     if match:
         try:
-            # Try parsing with milliseconds
             return datetime.datetime.strptime(match.group(1).replace('T', ' ').replace(',', '.'), '%Y-%m-%d %H:%M:%S.%f')
         except ValueError:
             pass
-    
-    # Add more parsing attempts for other common formats here
-    # Example: "MMM DD HH:MM:SS" (e.g., "Jun 28 10:30:00")
+
+    # Format 2: "MMM DD HH:MM:SS" (e.g., "Jun 29 14:22:27")
     match = re.match(r'^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}', log_line)
     if match:
         try:
-            # For this format, we might need to assume the current year or pass it in
-            # For simplicity, let's just return None for now if it's not a full datetime
-            pass
+            # This format doesn't have a year, so we assume the current year.
+            current_year = datetime.datetime.now().year
+            timestamp_str = f"{current_year} {match.group(0)}"
+            return datetime.datetime.strptime(timestamp_str, '%Y %b %d %H:%M:%S')
         except ValueError:
             pass
 
