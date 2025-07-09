@@ -35,10 +35,10 @@ This is the main application file that creates the user interface and handles al
         *   `filters`: A list of active filter dictionaries for that file.
 
 *   **Core Logic:**
-    *   **`add_file()`:** Handles file uploads. For each line in a new file, it calls `timestamp_utils.parse_timestamp` and stores the result along with the line content in `files_state`.
+    *   **`add_file()`:** Handles file uploads. For each line in a new file, it calls `timestamp_utils.parse_timestamp` and stores the result along with the line content in `files_state`. **Added log output for the number of lines read from a file.**
     *   **`select_file()`:** Triggered when a user selects a file from the dropdown. It updates the UI to show the filters for the selected file.
     *   **`add_filter()`, `remove_filter()`, `move_filter_up()`, `move_filter_down()`:** These functions manage the filter list for the currently selected file.
-    *   **`generate_merged_view()`:** This is the main processing function. It iterates through all files in `files_state`, applies the respective filters to each file's lines, combines the filtered lines into a single list, sorts them by timestamp, and returns a Pandas DataFrame for display.
+    *   **`generate_merged_view()`:** This is the main processing function. It iterates through all files in `files_state`, applies the respective filters to each file's lines, combines the filtered lines into a single list, sorts them by timestamp, and returns a Pandas DataFrame for display. **Added log output for the number of lines in the filtered result. Modified the filtered table to display milliseconds in the timestamp column.**
     *   **`update_filter_list()`:** Generates a list of strings from the filter list of the selected file to display it in the UI.
     *   **`save_filters()` & `load_filters()`:** Handle saving and loading of filter sets.
     *   **`save_filtered_log()`:** Saves the content of the DataFrame to a text file.
@@ -59,7 +59,7 @@ This module provides the core filtering logic.
 
 This module provides utilities for parsing timestamps from log lines.
 
-*   **`parse_timestamp()`:** Attempts to parse a timestamp from a log line, supporting multiple formats.
+*   **`parse_timestamp()`:** Attempts to parse a timestamp from a log line, supporting multiple formats. **Added support for `[YYYY-Mon-DD HH:MM:SS.ffffff]` format and JSON format `{"asctime": "YYYY-MM-DD HH:MM:SS,ms", ...}`. Added a 2-hour offset to the `[YYYY-Mon-DD HH:MM:SS.ffffff]` timestamp format.**
 
 ### 2.4. `cli_app.py`
 

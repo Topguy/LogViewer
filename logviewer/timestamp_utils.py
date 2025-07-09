@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 
 def parse_timestamp(log_line: str) -> datetime.datetime | None:
@@ -24,6 +25,22 @@ def parse_timestamp(log_line: str) -> datetime.datetime | None:
             return datetime.datetime.strptime(timestamp_str, '%Y %b %d %H:%M:%S')
         except ValueError:
             pass
+
+    # Format 3: [YYYY-Mon-DD HH:MM:SS.ffffff]
+    match = re.match(r'^\[(\d{4}-\w{3}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{6})\]', log_line)
+    if match:
+        try:
+            return datetime.datetime.strptime(match.group(1), '%Y-%b-%d %H:%M:%S.%f') + datetime.timedelta(hours=2)
+        except ValueError:
+            pass
+
+    # Format 4: JSON with asctime
+    try:
+        log_data = json.loads(log_line)
+        if 'asctime' in log_data:
+            return datetime.datetime.strptime(log_data['asctime'], '%Y-%m-%d %H:%M:%S,%f')
+    except (json.JSONDecodeError, ValueError):
+        pass
 
     return None
 

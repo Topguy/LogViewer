@@ -1,9 +1,12 @@
 import gradio as gr
 import json
+import logging
 import os
 import pandas as pd
 from filter_utils import filter_lines
 from timestamp_utils import parse_timestamp
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def add_file(files, state):
     if files:
@@ -12,6 +15,8 @@ def add_file(files, state):
             if filename not in state:
                 with open(file.name) as f:
                     lines = f.readlines()
+                
+                logging.info(f"Read {len(lines)} lines from {filename}")
                 
                 parsed_lines = []
                 for line in lines:
@@ -107,6 +112,7 @@ def generate_merged_view(state):
             
             processed_lines = [line for line in processed_lines if line["content"] in filtered_content]
 
+        logging.info(f"Filtered {filename} from {len(lines)} to {len(processed_lines)} lines")
         all_lines.extend(processed_lines)
 
     if not all_lines:
@@ -115,8 +121,10 @@ def generate_merged_view(state):
     # Sort lines by timestamp
     all_lines.sort(key=lambda x: x["timestamp"] if x["timestamp"] is not None else pd.Timestamp.min)
 
+    logging.info(f"Total lines after merging and sorting: {len(all_lines)}")
+
     df = pd.DataFrame(all_lines)
-    df["Timestamp"] = df["timestamp"].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S') if pd.notnull(x) else "")
+    df["Timestamp"] = df["timestamp"].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] if pd.notnull(x) else "")
     df = df.rename(columns={"source": "File", "content": "Log Entry"})
     
     return df[["File", "Timestamp", "Log Entry"]]
